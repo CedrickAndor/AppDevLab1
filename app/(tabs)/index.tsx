@@ -1,8 +1,17 @@
-import TaskForm from "@/components/TaskForm";
+import { MaterialIcons } from "@expo/vector-icons";
+import { useEffect, useState } from "react";
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import Toast from "react-native-toast-message";
+
+import AddTaskModal from "@/components/AddTaskModal";
 import TaskItem from "@/components/TaskItem";
 import { supabase } from "@/lib/supabase";
-import { useEffect, useState } from "react";
-import { FlatList, StyleSheet, Text, View } from "react-native";
 
 type Task = {
   id: string;
@@ -12,8 +21,8 @@ type Task = {
 };
 
 export default function HomeScreen() {
-  const [task, setTask] = useState("");
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [modalVisible, setModalVisible] = useState(false);
 
   async function loadTasks() {
     const { data, error } = await supabase
@@ -22,6 +31,12 @@ export default function HomeScreen() {
       .order("created_at", { ascending: false });
 
     if (error) {
+      Toast.show({
+        type: "error",
+        text1: "Could not load tasks",
+        text2: error.message,
+      });
+
       console.log("Error loading tasks:", error.message);
       return;
     }
@@ -29,20 +44,29 @@ export default function HomeScreen() {
     setTasks(data ?? []);
   }
 
-  async function addTask() {
-    if (task.trim() === "") return;
-
+  async function handleSubmitTask(title: string) {
     const { error } = await supabase
       .from("tasks")
-      .insert([{ title: task, completed: false }]);
+      .insert([{ title, completed: false }]);
 
     if (error) {
+      Toast.show({
+        type: "error",
+        text1: "Could not add task",
+        text2: error.message,
+      });
+
       console.log("Error adding task:", error.message);
       return;
     }
 
-    setTask("");
+    setModalVisible(false);
     loadTasks();
+
+    Toast.show({
+      type: "success",
+      text1: "Task added",
+    });
   }
 
   async function toggleTask(item: Task) {
@@ -52,26 +76,44 @@ export default function HomeScreen() {
       .eq("id", item.id);
 
     if (error) {
+      Toast.show({
+        type: "error",
+        text1: "Could not update task",
+        text2: error.message,
+      });
+
       console.log("Error updating task:", error.message);
       return;
     }
 
     loadTasks();
+
+    Toast.show({
+      type: "success",
+      text1: item.completed ? "Task marked incomplete" : "Task completed",
+    });
   }
 
   async function deleteTask(id: string) {
     const { error } = await supabase.from("tasks").delete().eq("id", id);
 
     if (error) {
+      Toast.show({
+        type: "error",
+        text1: "Could not delete task",
+        text2: error.message,
+      });
+
       console.log("Error deleting task:", error.message);
       return;
     }
 
     loadTasks();
-  }
 
-  function handleAddTask() {
-    addTask();
+    Toast.show({
+      type: "success",
+      text1: "Task deleted",
+    });
   }
 
   useEffect(() => {
@@ -84,7 +126,13 @@ export default function HomeScreen() {
         <Text style={headerStyles.title}>TaskFlow</Text>
       </View>
 
-      <TaskForm task={task} setTask={setTask} onAdd={handleAddTask} />
+      <TouchableOpacity
+        style={styles.openModalButton}
+        onPress={() => setModalVisible(true)}
+      >
+        <MaterialIcons name="add" size={22} color="#fff" />
+        <Text style={styles.openModalButtonText}>Add Task</Text>
+      </TouchableOpacity>
 
       <FlatList
         data={tasks}
@@ -92,6 +140,17 @@ export default function HomeScreen() {
         renderItem={({ item }) => (
           <TaskItem item={item} onToggle={toggleTask} onDelete={deleteTask} />
         )}
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>
+            No tasks yet. Add your first task.
+          </Text>
+        }
+      />
+
+      <AddTaskModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        onSubmit={handleSubmitTask}
       />
     </View>
   );
@@ -117,5 +176,25 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
     backgroundColor: "#fff",
+  },
+  openModalButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#2E5BBA",
+    borderRadius: 8,
+    paddingVertical: 12,
+    marginBottom: 20,
+    gap: 8,
+  },
+  openModalButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  emptyText: {
+    textAlign: "center",
+    color: "#5A6472",
+    marginTop: 30,
   },
 });
