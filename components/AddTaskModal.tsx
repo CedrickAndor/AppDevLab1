@@ -1,12 +1,12 @@
 import { useState } from "react";
 import {
-    Modal,
-    Pressable,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 type AddTaskModalProps = {
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   addButton: {
-    backgroundColor: "#2E5BBA",
+    backgroundColor: "#22C55E",
     borderRadius: 8,
     paddingHorizontal: 16,
     justifyContent: "center",
