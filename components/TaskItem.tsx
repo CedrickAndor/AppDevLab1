@@ -1,5 +1,6 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Swipeable } from "react-native-gesture-handler";
 
 type Task = {
   id: string;
@@ -15,21 +16,38 @@ type TaskItemProps = {
 };
 
 export default function TaskItem({ item, onToggle, onDelete }: TaskItemProps) {
-  return (
-    <TouchableOpacity
-      onPress={() => onToggle(item)}
-      onLongPress={() => onDelete(item.id)}
-    >
-      <View style={styles.taskRow}>
-        <MaterialIcons
-          name={item.completed ? "check-box" : "check-box-outline-blank"}
-          size={20}
-          color={item.completed ? "#2E5BBA" : "#5A6472"}
-        />
+  function renderRightActions() {
+    return (
+      <TouchableOpacity
+        style={styles.deleteAction}
+        onPress={() => onDelete(item.id)}
+      >
+        <MaterialIcons name="delete" size={26} color="#fff" />
+      </TouchableOpacity>
+    );
+  }
 
-        <Text style={styles.taskText}>{item.title}</Text>
-      </View>
-    </TouchableOpacity>
+  return (
+    <Swipeable renderRightActions={renderRightActions} overshootRight={false}>
+      <TouchableOpacity onPress={() => onToggle(item)}>
+        <View style={styles.taskRow}>
+          <MaterialIcons
+            name={item.completed ? "check-box" : "check-box-outline-blank"}
+            size={20}
+            color={item.completed ? "#2E5BBA" : "#5A6472"}
+          />
+
+          <Text
+            style={[
+              styles.taskText,
+              item.completed && styles.completedTaskText,
+            ]}
+          >
+            {item.title}
+          </Text>
+        </View>
+      </TouchableOpacity>
+    </Swipeable>
   );
 }
 
@@ -38,11 +56,25 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-    paddingVertical: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 4,
     borderBottomWidth: 1,
     borderBottomColor: "#eee",
+    backgroundColor: "#fff",
   },
   taskText: {
     fontSize: 15,
+    color: "#1F2A44",
+  },
+  completedTaskText: {
+    textDecorationLine: "line-through",
+    color: "#5A6472",
+  },
+  deleteAction: {
+    backgroundColor: "#D9534F",
+    justifyContent: "center",
+    alignItems: "center",
+    width: 72,
+    marginVertical: 1,
   },
 });
