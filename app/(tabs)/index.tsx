@@ -124,15 +124,15 @@ export default function HomeScreen() {
     <View style={styles.container}>
       <View style={headerStyles.header}>
         <Text style={headerStyles.title}>TaskFlow</Text>
-      </View>
 
-      <TouchableOpacity
-        style={styles.openModalButton}
-        onPress={() => setModalVisible(true)}
-      >
-        <MaterialIcons name="add" size={22} color="#fff" />
-        <Text style={styles.openModalButtonText}>Add Task</Text>
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.iconButton}
+          onPress={() => setModalVisible(true)}
+          accessibilityLabel="Add Task"
+        >
+          <MaterialIcons name="add" size={28} color="#fff" />
+        </TouchableOpacity>
+      </View>
 
       <FlatList
         data={tasks}
@@ -142,7 +142,7 @@ export default function HomeScreen() {
         )}
         ListEmptyComponent={
           <Text style={styles.emptyText}>
-            No tasks yet. Add your first task.
+            No tasks yet. Tap the plus icon to add one.
           </Text>
         }
       />
@@ -163,6 +163,9 @@ const headerStyles = StyleSheet.create({
     marginBottom: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#eee",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   title: {
     fontSize: 28,
@@ -177,20 +180,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     backgroundColor: "#fff",
   },
-  openModalButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+  iconButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: "#2E5BBA",
-    borderRadius: 8,
-    paddingVertical: 12,
-    marginBottom: 20,
-    gap: 8,
-  },
-  openModalButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 16,
+    justifyContent: "center",
+    alignItems: "center",
   },
   emptyText: {
     textAlign: "center",
